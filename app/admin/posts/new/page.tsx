@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,25 +15,16 @@ import { ArrowLeft, Save, Eye, Upload, X, Plus, CheckCircle, AlertCircle } from 
 import Link from "next/link"
 import { AdminSidebar } from "@/components/admin-sidebar"
 
-interface BlogPost {
-  id: string
-  title: string
-  excerpt: string
-  content: string
-  category: string
-  tags: string[]
-  featured: boolean
-  status: "draft" | "published"
-  featuredImage: string
-  author: string
-  publishedAt: string | null
-  createdAt: string
-  views: number
-  comments: number
+interface Category {
+  _id: string
+  name: string
+  slug: string
+  color: string
 }
 
 export default function NewPostPage() {
   const router = useRouter()
+  const [categories, setCategories] = useState<Category[]>([])
   const [title, setTitle] = useState("")
   const [excerpt, setExcerpt] = useState("")
   const [content, setContent] = useState("")
@@ -42,9 +33,26 @@ export default function NewPostPage() {
   const [newTag, setNewTag] = useState("")
   const [featured, setFeatured] = useState(false)
   const [featuredImage, setFeaturedImage] = useState("")
+  const [imageUploading, setImageUploading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories')
+      const data = await response.json()
+      if (response.ok) {
+        setCategories(data.categories || [])
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
 
   const handleAddTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
@@ -89,12 +97,7 @@ export default function NewPostPage() {
     }
 
     try {
-      // Get current user from localStorage
-      const adminUser = JSON.parse(localStorage.getItem("adminUser") || "{}")
-
-      // Create new post object
-      const newPost: BlogPost = {
-        id: Date.now().toString(),
+      const postData = {
         title: title.trim(),
         excerpt: excerpt.trim() || title.substring(0, 150) + "...",
         content: content.trim(),
@@ -103,24 +106,22 @@ export default function NewPostPage() {
         featured,
         status: saveStatus,
         featuredImage: featuredImage || `/placeholder.svg?height=400&width=600&text=${encodeURIComponent(title)}`,
-        author: adminUser.name || "Admin User",
-        publishedAt: saveStatus === "published" ? new Date().toISOString() : null,
-        createdAt: new Date().toISOString(),
-        views: 0,
-        comments: 0,
+        author: "Admin User",
       }
 
-      // Get existing posts from localStorage
-      const existingPosts = JSON.parse(localStorage.getItem("blogPosts") || "[]")
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+      })
 
-      // Add new post to the beginning of the array
-      const updatedPosts = [newPost, ...existingPosts]
+      const data = await response.json()
 
-      // Save to localStorage
-      localStorage.setItem("blogPosts", JSON.stringify(updatedPosts))
-
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save post')
+      }
 
       setSuccess(`Post ${saveStatus === "published" ? "published" : "saved as draft"} successfully!`)
 
@@ -129,16 +130,58 @@ export default function NewPostPage() {
         router.push("/admin/posts")
       }, 1500)
     } catch (err) {
-      setError("Failed to save post. Please try again.")
+      setError(err instanceof Error ? err.message : "Failed to save post. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
-  const handleImageUpload = () => {
-    // Simulate image upload - in production this would upload to Cloudinary
-    const imageUrl = `/placeholder.svg?height=400&width=600&text=${encodeURIComponent(title || "Blog Post")}`
-    setFeaturedImage(imageUrl)
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      setError('Invalid file type. Only images are allowed.')
+      return
+    }
+
+    // Validate file size (10MB max)
+    const maxSize = 10 * 1024 * 1024 // 10MB
+    if (file.size > maxSize) {
+      setError('File too large. Maximum size is 10MB.')
+      return
+    }
+
+    setImageUploading(true)
+    setError("")
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to upload image')
+      }
+
+      setFeaturedImage(data.url)
+      setSuccess('Image uploaded successfully!')
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccess(""), 3000)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload image. Please try again.")
+    } finally {
+      setImageUploading(false)
+    }
   }
 
   return (
@@ -265,20 +308,54 @@ export default function NewPostPage() {
                     <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600 mb-2">Upload featured image</p>
                     <p className="text-sm text-gray-500 mb-4">PNG, JPG, GIF up to 10MB</p>
-                    <Button variant="outline" onClick={handleImageUpload} disabled={loading}>
-                      Choose File
-                    </Button>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={loading || imageUploading}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        id="image-upload"
+                      />
+                      <Button variant="outline" disabled={loading || imageUploading} asChild>
+                        <label htmlFor="image-upload" className="cursor-pointer">
+                          {imageUploading ? "Uploading..." : "Choose File"}
+                        </label>
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     <img
-                      src={featuredImage || "/placeholder.svg"}
+                      src={featuredImage}
                       alt="Featured"
                       className="w-full h-48 object-cover rounded-lg"
                     />
-                    <Button variant="outline" onClick={() => setFeaturedImage("")} disabled={loading}>
-                      Remove Image
-                    </Button>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={loading || imageUploading}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          id="image-replace"
+                        />
+                        <Button variant="outline" disabled={loading || imageUploading} className="w-full" asChild>
+                          <label htmlFor="image-replace" className="cursor-pointer">
+                            {imageUploading ? "Uploading..." : "Replace Image"}
+                          </label>
+                        </Button>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setFeaturedImage("")} 
+                        disabled={loading || imageUploading}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -314,12 +391,14 @@ export default function NewPostPage() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="technology">Technology</SelectItem>
-                    <SelectItem value="development">Development</SelectItem>
-                    <SelectItem value="design">Design</SelectItem>
-                    <SelectItem value="writing">Writing</SelectItem>
-                    <SelectItem value="cloud">Cloud</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat._id} value={cat._id}>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
+                          {cat.name}
+                        </div>
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </CardContent>

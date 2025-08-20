@@ -17,7 +17,7 @@ import { Plus, Edit3, Trash2, MoreHorizontal, Tags, CheckCircle, AlertCircle, Se
 import { AdminSidebar } from "@/components/admin-sidebar"
 
 interface Category {
-  id: string
+  _id: string
   name: string
   slug: string
   description: string
@@ -25,63 +25,6 @@ interface Category {
   postCount: number
   createdAt: string
 }
-
-const defaultCategories: Category[] = [
-  {
-    id: "1",
-    name: "Technology",
-    slug: "technology",
-    description: "Latest trends and innovations in technology",
-    color: "#3B82F6",
-    postCount: 8,
-    createdAt: "2024-01-01",
-  },
-  {
-    id: "2",
-    name: "Development",
-    slug: "development",
-    description: "Web development, programming, and software engineering",
-    color: "#10B981",
-    postCount: 12,
-    createdAt: "2024-01-01",
-  },
-  {
-    id: "3",
-    name: "Design",
-    slug: "design",
-    description: "UI/UX design, visual design, and design systems",
-    color: "#F59E0B",
-    postCount: 5,
-    createdAt: "2024-01-01",
-  },
-  {
-    id: "4",
-    name: "Writing",
-    slug: "writing",
-    description: "Content writing, technical writing, and communication",
-    color: "#EF4444",
-    postCount: 3,
-    createdAt: "2024-01-01",
-  },
-  {
-    id: "5",
-    name: "Cloud",
-    slug: "cloud",
-    description: "Cloud computing, AWS, Azure, and infrastructure",
-    color: "#8B5CF6",
-    postCount: 7,
-    createdAt: "2024-01-01",
-  },
-  {
-    id: "6",
-    name: "Business",
-    slug: "business",
-    description: "Business strategy, entrepreneurship, and management",
-    color: "#06B6D4",
-    postCount: 4,
-    createdAt: "2024-01-01",
-  },
-]
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -98,15 +41,20 @@ export default function CategoriesPage() {
   const [success, setSuccess] = useState("")
 
   useEffect(() => {
-    // Load categories from localStorage or use defaults
-    const savedCategories = localStorage.getItem("blogCategories")
-    if (savedCategories) {
-      setCategories(JSON.parse(savedCategories))
-    } else {
-      setCategories(defaultCategories)
-      localStorage.setItem("blogCategories", JSON.stringify(defaultCategories))
-    }
+    fetchCategories()
   }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories')
+      const data = await response.json()
+      if (response.ok) {
+        setCategories(data.categories || [])
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
 
   const generateSlug = (name: string): string => {
     return name
@@ -129,57 +77,31 @@ export default function CategoriesPage() {
       return
     }
 
-    const slug = generateSlug(formData.name)
-
-    // Check if slug already exists (excluding current category if editing)
-    const existingCategory = categories.find((cat) => cat.slug === slug && cat.id !== editingCategory?.id)
-    if (existingCategory) {
-      setError("A category with this name already exists")
-      setLoading(false)
-      return
-    }
-
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      const url = editingCategory ? `/api/categories/${editingCategory._id}` : '/api/categories'
+      const method = editingCategory ? 'PUT' : 'POST'
 
-      if (editingCategory) {
-        // Update existing category
-        const updatedCategories = categories.map((cat) =>
-          cat.id === editingCategory.id
-            ? {
-                ...cat,
-                name: formData.name.trim(),
-                slug,
-                description: formData.description.trim(),
-                color: formData.color,
-              }
-            : cat,
-        )
-        setCategories(updatedCategories)
-        localStorage.setItem("blogCategories", JSON.stringify(updatedCategories))
-        setSuccess("Category updated successfully!")
-      } else {
-        // Create new category
-        const newCategory: Category = {
-          id: Date.now().toString(),
-          name: formData.name.trim(),
-          slug,
-          description: formData.description.trim(),
-          color: formData.color,
-          postCount: 0,
-          createdAt: new Date().toISOString(),
-        }
-        const updatedCategories = [...categories, newCategory]
-        setCategories(updatedCategories)
-        localStorage.setItem("blogCategories", JSON.stringify(updatedCategories))
-        setSuccess("Category created successfully!")
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save category')
       }
 
+      setSuccess(data.message)
+      fetchCategories() // Refresh the list
       setFormData({ name: "", description: "", color: "#3B82F6" })
       setEditingCategory(null)
       setIsDialogOpen(false)
     } catch (err) {
-      setError("Failed to save category. Please try again.")
+      setError(err instanceof Error ? err.message : "Failed to save category. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -196,21 +118,28 @@ export default function CategoriesPage() {
   }
 
   const handleDelete = async (categoryId: string) => {
-    const category = categories.find((cat) => cat.id === categoryId)
+    const category = categories.find((cat) => cat._id === categoryId)
     if (!category) return
 
-    if (category.postCount > 0) {
-      setError(
-        `Cannot delete "${category.name}" because it has ${category.postCount} posts. Please reassign or delete the posts first.`,
-      )
+    if (!confirm(`Are you sure you want to delete the "${category.name}" category? This action cannot be undone.`)) {
       return
     }
 
-    if (confirm(`Are you sure you want to delete the "${category.name}" category? This action cannot be undone.`)) {
-      const updatedCategories = categories.filter((cat) => cat.id !== categoryId)
-      setCategories(updatedCategories)
-      localStorage.setItem("blogCategories", JSON.stringify(updatedCategories))
-      setSuccess("Category deleted successfully!")
+    try {
+      const response = await fetch(`/api/categories/${categoryId}`, {
+        method: 'DELETE',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete category')
+      }
+
+      setSuccess(data.message)
+      fetchCategories() // Refresh the list
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete category")
     }
   }
 
@@ -383,7 +312,7 @@ export default function CategoriesPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredCategories.map((category) => (
-                    <TableRow key={category.id}>
+                    <TableRow key={category._id}>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="w-4 h-4 rounded-full" style={{ backgroundColor: category.color }} />
@@ -406,7 +335,9 @@ export default function CategoriesPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm text-gray-600">{new Date(category.createdAt).toLocaleDateString()}</div>
+                        <div className="text-sm text-gray-600">
+                          {new Date(category.createdAt).toLocaleDateString()}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -421,7 +352,7 @@ export default function CategoriesPage() {
                               Edit Category
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => handleDelete(category.id)}
+                              onClick={() => handleDelete(category._id)}
                               className="text-red-600 focus:text-red-600"
                               disabled={category.postCount > 0}
                             >

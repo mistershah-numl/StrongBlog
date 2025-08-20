@@ -1,134 +1,101 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import { StrongNavigation } from "@/components/strong-navigation"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
 
-// Mock blog posts data
-const mockPosts = [
-  {
-    id: "joining-forces-with-onesix",
-    title: "Strong Analytics Joins Forces with OneSix",
-    excerpt:
-      "We are thrilled to announce that Strong Analytics has joined forces with OneSix, a leader in data engineering.",
-    author: "FRANCIS GONZALEZ",
-    date: "06/10/2024",
-    category: "NEWS",
-    tags: ["TECHNICAL"],
-    image: "/abstract-geometric-shapes.png",
-  },
-  {
-    id: "deep-learning-augmented-perception",
-    title: "A Deep Dive into Retrieval Augmented Generation (RAG) for Fine-tuning",
-    excerpt: "Exploring advanced techniques in deep learning for enhanced perception systems.",
-    author: "CHRIS NGUYEN",
-    date: "04/17/2024",
-    category: "TECHNICAL",
-    tags: ["TECHNICAL"],
-    image: "/abstract-geometric-shapes.png",
-  },
-  {
-    id: "real-time-decisions-video-analytics",
-    title: "AI-Powered Streaming Vision: Transforming Real-Time Decisions with Video Analytics",
-    excerpt: "How video analytics is revolutionizing real-time decision making across industries.",
-    author: "FRANCISCO GONZALEZ",
-    date: "07/01/2024",
-    category: "CASE STUDY",
-    tags: ["CASE STUDY", "TECHNICAL", "COMPUTER VISION", "MACHINE LEARNING"],
-    image: "/abstract-geometric-shapes.png",
-  },
-  {
-    id: "marketing-optimization-media-mix",
-    title: "Marketing Optimization with Media Mix Modeling: Strategic Approach",
-    excerpt: "Strategic approaches to marketing optimization using advanced media mix modeling techniques.",
-    author: "MICHAEL CLARK",
-    date: "10/04/2023",
-    category: "STRATEGY",
-    tags: ["STRATEGY", "TECHNICAL", "STATISTICS", "MARKETING", "MARKETING MIX MODELING"],
-    image: "/abstract-geometric-shapes.png",
-  },
-  {
-    id: "case-study-mta-improve-business",
-    title: "Case Study: Using MTA to Improve Marketing Effectiveness",
-    excerpt: "Real-world case study demonstrating the power of Multi-Touch Attribution in marketing.",
-    author: "GRANT VERMILLION",
-    date: "09/06/2023",
-    category: "CASE STUDY",
-    tags: ["CASE STUDY", "PHARMACEUTICALS", "MARKETING"],
-    image: "/abstract-geometric-shapes.png",
-  },
-  {
-    id: "personalized-marketing-campaigns",
-    title: "Case Study: Optimizing Personalized Marketing Campaigns at Scale",
-    excerpt: "How we helped optimize personalized marketing campaigns for enterprise clients.",
-    author: "BROCK FERGUSON",
-    date: "05/31/2023",
-    category: "CASE STUDY",
-    tags: ["CASE STUDY", "MARKETING", "REAL ESTATE"],
-    image: "/abstract-geometric-shapes.png",
-  },
-  {
-    id: "multi-channel-marketing-optimization",
-    title: "Case Study: One-to-One, Multi-Channel Marketing Optimisation",
-    excerpt: "Optimizing multi-channel marketing strategies for maximum effectiveness.",
-    author: "BROCK FERGUSON",
-    date: "05/27/2023",
-    category: "CASE STUDY",
-    tags: ["CASE STUDY", "GAMING"],
-    image: "/abstract-geometric-shapes.png",
-  },
-  {
-    id: "geographic-demand-optimization",
-    title: "Case Study: Optimizing Ingredients based on Geographic Demand",
-    excerpt: "Geographic analysis and optimization strategies for ingredient sourcing.",
-    author: "JOSEPH DAY",
-    date: "05/17/2023",
-    category: "CASE STUDY",
-    tags: ["CASE STUDY", "FOODSERVICE"],
-    image: "/abstract-geometric-shapes.png",
-  },
-  {
-    id: "visual-crop-detection",
-    title: "Case Study: Improving Visual Crop Detection Algorithm",
-    excerpt: "Advanced computer vision techniques for agricultural applications.",
-    author: "NINA SINGER",
-    date: "05/10/2023",
-    category: "CASE STUDY",
-    tags: ["CASE STUDY", "TECHNOLOGY & SOFTWARE", "AGRICULTURE"],
-    image: "/abstract-geometric-shapes.png",
-  },
-  {
-    id: "large-language-models",
-    title: "3 Uses of Large Language Models in the Insurance Industry",
-    excerpt: "Exploring applications of LLMs in insurance and financial services.",
-    author: "JULIAN WHITING",
-    date: "04/26/2023",
-    category: "IDEAS",
-    tags: ["IDEAS", "LARGE LANGUAGE MODELS", "TRAVEL"],
-    image: "/abstract-geometric-shapes.png",
-  },
-  {
-    id: "generative-ai-applications",
-    title: "Applications of Generative AI: A Deep Dive into Methods and Techniques",
-    excerpt: "Comprehensive overview of generative AI applications and methodologies.",
-    author: "JASON AMATO",
-    date: "04/19/2023",
-    category: "TECHNICAL",
-    tags: ["TECHNICAL", "GENERATIVE AI"],
-    image: "/abstract-geometric-shapes.png",
-  },
-  {
-    id: "machine-learning-pharmaceuticals",
-    title: "5 Ways Machine Learning is Changing Pharmaceuticals",
-    excerpt: "The transformative impact of ML on pharmaceutical research and development.",
-    author: "JENNA RODRIGUES",
-    date: "04/12/2023",
-    category: "IDEAS",
-    tags: ["IDEAS", "PHARMACEUTICALS", "MACHINE LEARNING"],
-    image: "/abstract-geometric-shapes.png",
-  },
-]
+interface Post {
+  _id: string
+  title: string
+  slug: string
+  excerpt: string
+  content: string
+  author: string
+  category: {
+    _id: string
+    name: string
+    color: string
+  }
+  tags: string[]
+  featured: boolean
+  status: "draft" | "published"
+  featuredImage: string
+  publishedAt: string
+  createdAt: string
+  views: number
+  comments: number
+}
+
+interface Category {
+  _id: string
+  name: string
+  slug: string
+  color: string
+}
 
 export default function BlogPage() {
+  const [posts, setPosts] = useState<Post[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [featuredPost, setFeaturedPost] = useState<Post | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchPosts()
+    fetchCategories()
+  }, [])
+
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch('/api/posts?status=published')
+      const data = await response.json()
+      if (response.ok) {
+        const allPosts = data.posts || []
+        setPosts(allPosts)
+        
+        // Set featured post (first featured post or first post)
+        const featured = allPosts.find((post: Post) => post.featured) || allPosts[0]
+        setFeaturedPost(featured)
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories')
+      const data = await response.json()
+      if (response.ok) {
+        setCategories(data.categories || [])
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
+
+  const filteredPosts = posts.filter((post) => {
+    const matchesCategory = selectedCategory === "all" || post.category._id === selectedCategory
+    const matchesSearch = 
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    
+    return matchesCategory && matchesSearch && post._id !== featuredPost?._id
+  })
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric'
+    })
+  }
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -155,18 +122,32 @@ export default function BlogPage() {
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-light leading-tight mb-6">
-            Strong Analytics Joins
-            <br />
-            Forces with OneSix
-          </h1>
-          <p className="text-white/80 text-lg mb-8 max-w-2xl leading-relaxed">
-            We are thrilled to announce that Strong Analytics has joined forces with OneSix, a leader in data
-            engineering.
-          </p>
-          <Button className="bg-white text-gray-900 hover:bg-gray-50 px-8 py-3 text-sm font-medium tracking-wider uppercase rounded-none">
-            READ MORE
-          </Button>
+          {featuredPost ? (
+            <>
+              <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-light leading-tight mb-6">
+                {featuredPost.title}
+              </h1>
+              <p className="text-white/80 text-lg mb-8 max-w-2xl leading-relaxed">
+                {featuredPost.excerpt}
+              </p>
+              <Link href={`/blog/${featuredPost.slug}`}>
+                <Button className="bg-white text-gray-900 hover:bg-gray-50 px-8 py-3 text-sm font-medium tracking-wider uppercase rounded-none">
+                  READ MORE
+                </Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-light leading-tight mb-6">
+                Strong Analytics
+                <br />
+                Blog
+              </h1>
+              <p className="text-white/80 text-lg mb-8 max-w-2xl leading-relaxed">
+                Insights and updates from our team of data science and machine learning experts.
+              </p>
+            </>
+          )}
         </div>
       </section>
 
@@ -175,13 +156,17 @@ export default function BlogPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-16 gap-6">
             <div className="relative">
-              <select className="appearance-none bg-white border-0 border-b border-gray-300 px-0 py-3 pr-8 text-sm text-gray-600 focus:outline-none focus:border-gray-500 bg-transparent">
-                <option>ALL CATEGORIES</option>
-                <option>TECHNICAL</option>
-                <option>CASE STUDY</option>
-                <option>NEWS</option>
-                <option>STRATEGY</option>
-                <option>IDEAS</option>
+              <select 
+                className="appearance-none bg-white border-0 border-b border-gray-300 px-0 py-3 pr-8 text-sm text-gray-600 focus:outline-none focus:border-gray-500 bg-transparent"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                <option value="all">ALL CATEGORIES</option>
+                {categories.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name.toUpperCase()}
+                  </option>
+                ))}
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,6 +179,8 @@ export default function BlogPage() {
               <input
                 type="text"
                 placeholder="SEARCH ALL POSTS"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="bg-white border-0 border-b border-gray-300 px-0 py-3 pr-8 text-sm text-gray-600 focus:outline-none focus:border-gray-500 w-64 bg-transparent placeholder-gray-400"
               />
               <div className="absolute inset-y-0 right-0 flex items-center px-2">
@@ -209,42 +196,72 @@ export default function BlogPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 mb-20">
-            {mockPosts.map((post) => (
-              <div key={post.id} className="group cursor-pointer">
-                <Link href={`/blog/${post.id}`}>
-                  <div className="relative h-48 mb-6 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 rounded-sm overflow-hidden">
-                    <Image
-                      src={post.image || "/placeholder.svg"}
-                      alt={post.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 mb-20">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="h-48 bg-gray-200 rounded-sm mb-6"></div>
                   <div className="space-y-3">
-                    <div className="text-xs text-gray-500 font-medium tracking-wide">{post.date}</div>
-
-                    <h3 className="text-gray-900 text-lg font-normal leading-tight group-hover:text-blue-600 transition-colors line-clamp-3">
-                      {post.title}
-                    </h3>
-
-                    <div className="text-xs text-gray-500 font-medium tracking-wide">
-                      BY <span className="text-gray-700">{post.author}</span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1 pt-1">
-                      {post.tags.map((tag) => (
-                        <span key={tag} className="text-xs text-gray-500 font-medium tracking-wide">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                    <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                   </div>
-                </Link>
-              </div>
-            ))}
-          </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredPosts.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-gray-600 text-lg">No posts found.</p>
+              {searchTerm && (
+                <p className="text-gray-500 mt-2">Try adjusting your search terms or category filter.</p>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 mb-20">
+              {filteredPosts.map((post) => (
+                <div key={post._id} className="group cursor-pointer">
+                  <Link href={`/blog/${post.slug}`}>
+                    <div className="relative h-48 mb-6 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 rounded-sm overflow-hidden">
+                      <Image
+                        src={post.featuredImage || "/placeholder.svg"}
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="text-xs text-gray-500 font-medium tracking-wide">
+                        {formatDate(post.publishedAt)}
+                      </div>
+
+                      <h3 className="text-gray-900 text-lg font-normal leading-tight group-hover:text-blue-600 transition-colors line-clamp-3">
+                        {post.title}
+                      </h3>
+
+                      <div className="text-xs text-gray-500 font-medium tracking-wide">
+                        BY <span className="text-gray-700">{post.author.toUpperCase()}</span>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        <span 
+                          className="text-xs font-medium tracking-wide px-2 py-1 rounded-sm text-white"
+                          style={{ backgroundColor: post.category.color }}
+                        >
+                          {post.category.name.toUpperCase()}
+                        </span>
+                        {post.tags.slice(0, 2).map((tag) => (
+                          <span key={tag} className="text-xs text-gray-500 font-medium tracking-wide">
+                            {tag.toUpperCase()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="flex justify-center items-center gap-4">
             {[1, 2, 3, 4, 5, 6].map((num) => (

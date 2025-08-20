@@ -1,3 +1,6 @@
+"use client"
+import React from "react";
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -5,52 +8,87 @@ import { BarChart3, FileText, Users, Eye, Plus, Edit3, MoreHorizontal, TrendingU
 import Link from "next/link"
 import { AdminSidebar } from "@/components/admin-sidebar"
 
-// Mock data for admin dashboard
-const dashboardStats = {
-  totalPosts: 24,
-  publishedPosts: 18,
-  draftPosts: 6,
-  totalViews: 12543,
-  monthlyViews: 3421,
-  totalComments: 89,
+interface DashboardStats {
+  totalPosts: number
+  publishedPosts: number
+  draftPosts: number
+  totalViews: number
+  totalCategories: number
 }
 
-const recentPosts = [
-  {
-    id: "1",
-    title: "The Future of Web Development: Trends to Watch in 2024",
-    status: "published",
-    views: 1234,
-    publishedAt: "2024-01-15",
-    author: "Sarah Johnson",
-  },
-  {
-    id: "2",
-    title: "Building Scalable Applications with Next.js and MongoDB",
-    status: "published",
-    views: 987,
-    publishedAt: "2024-01-12",
-    author: "Michael Chen",
-  },
-  {
-    id: "3",
-    title: "Design Systems: Creating Consistency Across Digital Products",
-    status: "draft",
-    views: 0,
-    publishedAt: null,
-    author: "Emily Rodriguez",
-  },
-  {
-    id: "4",
-    title: "The Art of Technical Writing: Communicating Complex Ideas Simply",
-    status: "published",
-    views: 756,
-    publishedAt: "2024-01-08",
-    author: "David Kim",
-  },
-]
+interface RecentPost {
+  _id: string
+  title: string
+  status: 'draft' | 'published'
+  views: number
+  publishedAt: string | null
+  author: string
+  createdAt: string
+}
 
 export default function AdminDashboard() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalPosts: 0,
+    publishedPosts: 0,
+    draftPosts: 0,
+    totalViews: 0,
+    totalCategories: 0,
+  })
+  const [recentPosts, setRecentPosts] = useState<RecentPost[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+
+      // Fetch posts
+      const postsResponse = await fetch('/api/posts?limit=50')
+      const postsData = await postsResponse.json()
+
+      // Fetch categories
+      const categoriesResponse = await fetch('/api/categories')
+      const categoriesData = await categoriesResponse.json()
+
+      if (postsResponse.ok && categoriesResponse.ok) {
+        const posts = postsData.posts || []
+        const categories = categoriesData.categories || []
+
+        // Calculate stats
+        const totalPosts = posts.length
+        const publishedPosts = posts.filter((p: RecentPost) => p.status === 'published').length
+        const draftPosts = posts.filter((p: RecentPost) => p.status === 'draft').length
+        const totalViews = posts.reduce((sum: number, p: RecentPost) => sum + (p.views || 0), 0)
+
+        setStats({
+          totalPosts,
+          publishedPosts,
+          draftPosts,
+          totalViews,
+          totalCategories: categories.length,
+        })
+
+        setRecentPosts(posts.slice(0, 5))
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Not published'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  }
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       <AdminSidebar />
@@ -80,9 +118,9 @@ export default function AdminDashboard() {
               <FileText className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{dashboardStats.totalPosts}</div>
+              <div className="text-2xl font-bold text-gray-900">{stats.totalPosts}</div>
               <p className="text-xs text-gray-500 mt-1">
-                {dashboardStats.publishedPosts} published, {dashboardStats.draftPosts} drafts
+                {stats.publishedPosts} published, {stats.draftPosts} drafts
               </p>
             </CardContent>
           </Card>
@@ -93,9 +131,9 @@ export default function AdminDashboard() {
               <Eye className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{dashboardStats.totalViews.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-gray-900">{stats.totalViews.toLocaleString()}</div>
               <p className="text-xs text-green-600 mt-1 flex items-center">
-                <TrendingUp className="h-3 w-3 mr-1" />+{dashboardStats.monthlyViews} this month
+                <TrendingUp className="h-3 w-3 mr-1" />Across all posts
               </p>
             </CardContent>
           </Card>
@@ -106,21 +144,21 @@ export default function AdminDashboard() {
               <BarChart3 className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{dashboardStats.publishedPosts}</div>
+              <div className="text-2xl font-bold text-gray-900">{stats.publishedPosts}</div>
               <p className="text-xs text-gray-500 mt-1">
-                {Math.round((dashboardStats.publishedPosts / dashboardStats.totalPosts) * 100)}% of total posts
+                {stats.totalPosts > 0 ? Math.round((stats.publishedPosts / stats.totalPosts) * 100) : 0}% of total posts
               </p>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Comments</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Categories</CardTitle>
               <Users className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{dashboardStats.totalComments}</div>
-              <p className="text-xs text-gray-500 mt-1">Across all posts</p>
+              <div className="text-2xl font-bold text-gray-900">{stats.totalCategories}</div>
+              <p className="text-xs text-gray-500 mt-1">Content categories</p>
             </CardContent>
           </Card>
         </div>
@@ -141,7 +179,7 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               {recentPosts.map((post) => (
                 <div
-                  key={post.id}
+                  key={post._id}
                   className="flex flex-col sm:flex-row sm:items-center justify-between p-3 md:p-4 bg-gray-50 rounded-lg gap-3"
                 >
                   <div className="flex-1 min-w-0">
@@ -149,11 +187,10 @@ export default function AdminDashboard() {
                       <h3 className="font-semibold text-gray-900 line-clamp-1 text-sm md:text-base">{post.title}</h3>
                       <Badge
                         variant={post.status === "published" ? "default" : "secondary"}
-                        className={`w-fit text-xs ${
-                          post.status === "published"
+                        className={`w-fit text-xs ${post.status === "published"
                             ? "bg-green-100 text-green-700 hover:bg-green-200"
                             : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                        }`}
+                          }`}
                       >
                         {post.status}
                       </Badge>
@@ -163,7 +200,7 @@ export default function AdminDashboard() {
                       {post.publishedAt && (
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {new Date(post.publishedAt).toLocaleDateString()}
+                          {formatDate(post.publishedAt)}
                         </span>
                       )}
                       <span className="flex items-center gap-1">
@@ -173,7 +210,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <Link href={`/admin/posts/${post.id}/edit`}>
+                    <Link href={`/admin/posts/${post._id}/edit`}>
                       <Button variant="ghost" size="sm">
                         <Edit3 className="h-4 w-4" />
                       </Button>
