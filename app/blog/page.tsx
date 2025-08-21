@@ -42,20 +42,22 @@ export default function BlogPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [featuredPost, setFeaturedPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    fetchPosts()
+    fetchPosts(page)
     fetchCategories()
-  }, [])
+  }, [page])
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('/api/posts?status=published')
+      const response = await fetch(`/api/posts?status=published&page=${page}&limit=6`)
       const data = await response.json()
       if (response.ok) {
         const allPosts = data.posts || []
         setPosts(allPosts)
-        
+        setTotalPages(data.pagination?.total || 1);
         // Set featured post (first featured post or first post)
         const featured = allPosts.find((post: Post) => post.featured) || allPosts[0]
         setFeaturedPost(featured)
@@ -80,12 +82,11 @@ export default function BlogPage() {
   }
 
   const filteredPosts = posts.filter((post) => {
-    const matchesCategory = selectedCategory === "all" || post.category._id === selectedCategory
+  const matchesCategory = selectedCategory === "all" || post.category?._id === selectedCategory
     const matchesSearch = 
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    
     return matchesCategory && matchesSearch && post._id !== featuredPost?._id
   })
 
@@ -234,22 +235,21 @@ export default function BlogPage() {
                       <div className="text-xs text-gray-500 font-medium tracking-wide">
                         {formatDate(post.publishedAt)}
                       </div>
-
                       <h3 className="text-gray-900 text-lg font-normal leading-tight group-hover:text-blue-600 transition-colors line-clamp-3">
                         {post.title}
                       </h3>
-
                       <div className="text-xs text-gray-500 font-medium tracking-wide">
                         BY <span className="text-gray-700">{post.author.toUpperCase()}</span>
                       </div>
-
                       <div className="flex flex-wrap gap-1 pt-1">
-                        <span 
-                          className="text-xs font-medium tracking-wide px-2 py-1 rounded-sm text-white"
-                          style={{ backgroundColor: post.category.color }}
-                        >
-                          {post.category.name.toUpperCase()}
-                        </span>
+                        {post.category && (
+                          <span
+                            className="text-xs font-medium tracking-wide px-2 py-1 rounded-sm text-white"
+                            style={{ backgroundColor: post.category.color }}
+                          >
+                            {post.category.name.toUpperCase()}
+                          </span>
+                        )}
                         {post.tags.slice(0, 2).map((tag) => (
                           <span key={tag} className="text-xs text-gray-500 font-medium tracking-wide">
                             {tag.toUpperCase()}
@@ -264,14 +264,24 @@ export default function BlogPage() {
           )}
 
           <div className="flex justify-center items-center gap-4">
-            {[1, 2, 3, 4, 5, 6].map((num) => (
-              <button key={num} className="w-8 h-8 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+              <button
+                key={num}
+                className={`w-8 h-8 text-sm rounded ${num === page ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-gray-900'} transition-colors`}
+                onClick={() => setPage(num)}
+                disabled={num === page}
+              >
                 {num}
               </button>
             ))}
-            <button className="text-sm text-gray-600 hover:text-gray-900 transition-colors font-medium tracking-wide ml-2">
-              NEXT
-            </button>
+            {page < totalPages && (
+              <button
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors font-medium tracking-wide ml-2"
+                onClick={() => setPage(page + 1)}
+              >
+                NEXT
+              </button>
+            )}
           </div>
         </div>
       </section>

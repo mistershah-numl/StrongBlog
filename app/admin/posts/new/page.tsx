@@ -392,7 +392,7 @@ export default function NewPostPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((cat) => (
-                      <SelectItem key={cat._id} value={cat._id}>
+                      <SelectItem key={cat._id} value={cat.name}>
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
                           {cat.name}

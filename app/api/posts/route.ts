@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url)
         const status = searchParams.get('status')
-        const category = searchParams.get('category')
+    const category = searchParams.get('category')
         const featured = searchParams.get('featured')
         const limit = parseInt(searchParams.get('limit') || '10')
         const page = parseInt(searchParams.get('page') || '1')
@@ -27,7 +27,10 @@ export async function GET(request: NextRequest) {
         // Build query
         const query: any = {}
         if (status) query.status = status
-        if (category) query.category = category
+        if (category) {
+            // Allow filtering by category name
+            query['category.name'] = category
+        }
         if (featured) query.featured = featured === 'true'
 
         const skip = (page - 1) * limit
@@ -83,6 +86,20 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             )
         }
+        // If category is a string (name), fetch category object
+        let categoryObj = category
+        if (typeof category === 'string') {
+            const catDoc = await import('@/lib/models/Category').then(m => m.default.findOne({ name: category }))
+            if (!catDoc) {
+                return NextResponse.json({ error: 'Category not found' }, { status: 400 })
+            }
+            categoryObj = {
+                _id: catDoc._id,
+                name: catDoc.name,
+                color: catDoc.color,
+                slug: catDoc.slug
+            }
+        }
 
         // Generate slug
         let slug = generateSlug(title)
@@ -101,7 +118,7 @@ export async function POST(request: NextRequest) {
             title: title.trim(),
             excerpt: excerpt?.trim() || title.substring(0, 150) + '...',
             content: content.trim(),
-            category,
+            category: categoryObj,
             tags: tags || [],
             featured: featured || false,
             status: status || 'draft',

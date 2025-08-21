@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useParams } from "next/navigation"
 import { StrongNavigation } from "@/components/strong-navigation"
 import { Button } from "@/components/ui/button"
 import { Share2, Facebook, Linkedin, ArrowLeft } from "lucide-react"
@@ -30,37 +31,36 @@ interface Post {
 }
 
 interface BlogPostPageProps {
-  params: {
-    id: string
-  }
+  // params removed, will use useParams()
 }
 
-export default function BlogPostPage({ params }: BlogPostPageProps) {
-  const [post, setPost] = useState<Post | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [notFoundError, setNotFoundError] = useState(false)
+export default function BlogPostPage() {
+  const params = useParams();
+  const slug = typeof params.slug === "string" ? params.slug : (Array.isArray(params.slug) ? params.slug[0] : "");
+  const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFoundError, setNotFoundError] = useState(false);
 
   useEffect(() => {
-    fetchPost()
-  }, [params.id])
+    fetchPost();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
 
   const fetchPost = async () => {
     try {
-      const response = await fetch(`/api/posts/slug/${params.id}`)
-      const data = await response.json()
-      
+      const response = await fetch(`/api/posts/slug/${slug}`);
+      const data = await response.json();
       if (response.ok && data.post) {
-        setPost(data.post)
-        // Increment view count
-        incrementViews(data.post._id)
+        setPost(data.post);
+        incrementViews(data.post._id);
       } else {
-        setNotFoundError(true)
+        setNotFoundError(true);
       }
     } catch (error) {
-      console.error('Error fetching post:', error)
-      setNotFoundError(true)
+      console.error('Error fetching post:', error);
+      setNotFoundError(true);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 

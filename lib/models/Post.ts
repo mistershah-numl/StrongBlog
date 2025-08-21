@@ -5,7 +5,7 @@ export interface IPost extends Document {
     title: string
     excerpt: string
     content: string
-    category: string
+    category: any
     tags: string[]
     featured: boolean
     status: 'draft' | 'published'
@@ -37,9 +37,8 @@ const PostSchema = new Schema<IPost>(
             required: true,
         },
         category: {
-            type: String,
+            type: Schema.Types.Mixed,
             required: true,
-            trim: true,
         },
         tags: [{
             type: String,
@@ -78,7 +77,6 @@ const PostSchema = new Schema<IPost>(
         slug: {
             type: String,
             required: true,
-            unique: true,
             trim: true,
         },
     },
@@ -89,8 +87,8 @@ const PostSchema = new Schema<IPost>(
 
 // Index for better query performance
 PostSchema.index({ status: 1, publishedAt: -1 })
-PostSchema.index({ slug: 1 })
-PostSchema.index({ category: 1 })
+// Only keep one slug index definition
+// PostSchema.index({ slug: 1 })
 PostSchema.index({ tags: 1 })
 
 export default mongoose.models.Post || mongoose.model<IPost>('Post', PostSchema)

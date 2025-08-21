@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectDB } from '@/lib/db'
+import connectDB from '@/lib/db'
 import Post from '@/lib/models/Post'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectDB()
+    const { id } = await context.params
 
     const post = await Post.findByIdAndUpdate(
-      params.id,
+      id,
       { $inc: { views: 1 } },
       { new: true }
     )

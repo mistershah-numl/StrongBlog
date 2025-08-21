@@ -22,6 +22,7 @@ interface Post {
   views: number
   comments: number
   createdAt: string
+  slug: string
 }
 
 interface Category {
@@ -92,7 +93,7 @@ export default function AdminPostsPage() {
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          post.author.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === "all" || post.status === statusFilter
-    const matchesCategory = categoryFilter === "all" || post.category === categoryFilter
+    const matchesCategory = categoryFilter === "all" || (post.category?.name === categoryFilter || post.category === categoryFilter)
     
     return matchesSearch && matchesStatus && matchesCategory
   })
@@ -225,7 +226,9 @@ export default function AdminPostsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{post.category}</Badge>
+                        <Badge variant="outline">
+                          {typeof post.category === 'object' && post.category !== null ? post.category.name : post.category}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-gray-600">{post.author}</TableCell>
                       <TableCell>
@@ -248,13 +251,13 @@ export default function AdminPostsPage() {
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="icon">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent>
                             <DropdownMenuItem asChild>
-                              <Link href={`/blog/${post._id}`} className="flex items-center">
+                              <Link href={`/blog/${post.slug}`} className="flex items-center">
                                 <Eye className="h-4 w-4 mr-2" />
                                 View Post
                               </Link>

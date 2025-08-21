@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectDB } from '@/lib/db'
+import connectDB from '@/lib/db'
 import Post from '@/lib/models/Post'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: { slug: string } }
 ) {
   try {
     await connectDB()
+    const { slug } = await context.params
 
     const post = await Post.findOne({ 
-      slug: params.slug,
+      slug,
       status: 'published'
     }).populate('category', 'name color slug')
 
