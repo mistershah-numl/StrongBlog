@@ -11,9 +11,9 @@ const karla = Karla({
 })
 
 export const metadata: Metadata = {
-  title: "Strong Blog - Insights & Stories",
-  description: "A modern blog platform inspired by strong design principles",
-  generator: "v0.app",
+  title: "DaVinci - Insights & Stories",
+  description: "A modern blog platform ",
+  generator: "Muhammad Shah",
 }
 
 export default function RootLayout({

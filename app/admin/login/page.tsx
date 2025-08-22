@@ -14,8 +14,8 @@ import Link from "next/link"
 
 // Static credentials for demo
 const ADMIN_CREDENTIALS = {
-  username: "admin",
-  password: "admin123",
+  username: "admin", // admin
+  password: "admin123", // admin123
 }
 
 export default function AdminLoginPage() {
@@ -123,7 +123,7 @@ export default function AdminLoginPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Demo credentials: <br />
-              <span className="font-mono bg-gray-100 px-2 py-1 rounded text-xs">admin / admin123</span>
+              <span className="font-mono bg-gray-100 px-2 py-1 rounded text-xs">***** / *****</span>
             </p>
           </div>
 

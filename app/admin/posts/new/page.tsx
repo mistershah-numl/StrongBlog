@@ -1,3 +1,5 @@
+
+// filepath: app/admin/posts/new/page.tsx
 "use client"
 
 import { useState, useEffect } from "react"
@@ -28,7 +30,7 @@ export default function NewPostPage() {
   const [title, setTitle] = useState("")
   const [excerpt, setExcerpt] = useState("")
   const [content, setContent] = useState("")
-  const [category, setCategory] = useState("")
+  const [category, setCategory] = useState("none")
   const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState("")
   const [featured, setFeatured] = useState(false)
@@ -47,7 +49,10 @@ export default function NewPostPage() {
       const response = await fetch('/api/categories')
       const data = await response.json()
       if (response.ok) {
+        console.log('Fetched categories:', data.categories)
         setCategories(data.categories || [])
+      } else {
+        console.error('Failed to fetch categories:', data.error)
       }
     } catch (error) {
       console.error('Error fetching categories:', error)
@@ -68,7 +73,9 @@ export default function NewPostPage() {
   const validateForm = (): string | null => {
     if (!title.trim()) return "Title is required"
     if (!content.trim()) return "Content is required"
-    if (!category) return "Category is required"
+    if (category !== "none" && !categories.find(cat => cat._id === category)) {
+      return "Invalid category selected"
+    }
     if (title.length < 5) return "Title must be at least 5 characters long"
     if (content.length < 50) return "Content must be at least 50 characters long"
     return null
@@ -101,13 +108,14 @@ export default function NewPostPage() {
         title: title.trim(),
         excerpt: excerpt.trim() || title.substring(0, 150) + "...",
         content: content.trim(),
-        category,
+        category: category === "none" ? null : category,
         tags,
         featured,
         status: saveStatus,
         featuredImage: featuredImage || `/placeholder.svg?height=400&width=600&text=${encodeURIComponent(title)}`,
         author: "Admin User",
       }
+      console.log('Sending POST request with body:', postData)
 
       const response = await fetch('/api/posts', {
         method: 'POST',
@@ -383,16 +391,24 @@ export default function NewPostPage() {
             {/* Categories */}
             <Card className="border-0 shadow-sm">
               <CardHeader>
-                <CardTitle className="font-serif text-lg font-bold text-gray-900">Category *</CardTitle>
+                <CardTitle className="font-serif text-lg font-bold text-gray-900">Category</CardTitle>
               </CardHeader>
               <CardContent>
-                <Select value={category} onValueChange={setCategory} disabled={loading}>
+                <Select 
+                  value={category} 
+                  onValueChange={(value) => {
+                    console.log('Selected category:', value)
+                    setCategory(value)
+                  }} 
+                  disabled={loading}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">Uncategorized</SelectItem>
                     {categories.map((cat) => (
-                      <SelectItem key={cat._id} value={cat.name}>
+                      <SelectItem key={cat._id} value={cat._id}>
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
                           {cat.name}

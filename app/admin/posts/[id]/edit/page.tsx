@@ -1,6 +1,9 @@
+
+// filepath: app/admin/posts/[id]/edit/page.tsx
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,74 +12,104 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
-import { ArrowLeft, Save, Eye, Upload, X, Plus, Trash2 } from "lucide-react"
+import { ArrowLeft, Save, Eye, X, Plus, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { notFound } from "next/navigation"
 
-// Mock data for existing post
-const mockPost = {
-  id: "1",
-  title: "The Future of Web Development: Trends to Watch in 2024",
-  excerpt:
-    "Explore the latest trends shaping the web development landscape, from AI integration to new frameworks and tools that are revolutionizing how we build applications.",
-  content: `The web development landscape is evolving at an unprecedented pace. As we move through 2024, several key trends are emerging that will shape how we build and interact with web applications.
-
-## AI Integration in Development Workflows
-
-Artificial Intelligence is no longer just a buzzword—it's becoming an integral part of the development process. From AI-powered code completion to automated testing and deployment, developers are leveraging AI to increase productivity and reduce errors.
-
-## The Rise of Edge Computing
-
-Edge computing is transforming how we think about application architecture. By processing data closer to the user, we can achieve lower latency and better performance, especially for real-time applications.
-
-## WebAssembly Goes Mainstream
-
-WebAssembly (WASM) is finally reaching mainstream adoption, allowing developers to run high-performance applications in the browser using languages like Rust, C++, and Go.`,
-  category: "Technology",
-  tags: ["Web Development", "AI", "Trends"],
-  featured: true,
-  status: "published",
-  featuredImage: "/modern-web-dev-workspace.png",
-  author: "Sarah Johnson",
-  publishedAt: "2024-01-15",
+interface Post {
+  _id: string
+  title: string
+  excerpt: string
+  content: string
+  category: {
+    _id: string
+    name: string
+    color: string
+    slug: string
+  } | null
+  tags: string[]
+  featured: boolean
+  status: "draft" | "published"
+  featuredImage: string
+  author: string
+  publishedAt: string | null
+  slug: string
 }
 
-interface EditPostPageProps {
-  params: {
-    id: string
-  }
+interface Category {
+  _id: string
+  name: string
+  slug: string
+  color: string
 }
 
-export default function EditPostPage({ params }: EditPostPageProps) {
+export default function EditPostPage() {
+  const router = useRouter()
+  const params = useParams()
+  const id = typeof params.id === 'string' ? params.id : (Array.isArray(params.id) ? params.id[0] : '')
   const [title, setTitle] = useState("")
   const [excerpt, setExcerpt] = useState("")
   const [content, setContent] = useState("")
-  const [category, setCategory] = useState("")
+  const [category, setCategory] = useState("none")
   const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState("")
   const [featured, setFeatured] = useState(false)
-  const [status, setStatus] = useState("draft")
+  const [status, setStatus] = useState<"draft" | "published">("draft")
   const [featuredImage, setFeaturedImage] = useState("")
+  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
+  const [publishedAt, setPublishedAt] = useState<string | null>(null)
 
-  // Simulate loading post data
   useEffect(() => {
-    // In a real app, this would fetch from MongoDB
-    if (params.id === "1") {
-      setTitle(mockPost.title)
-      setExcerpt(mockPost.excerpt)
-      setContent(mockPost.content)
-      setCategory(mockPost.category)
-      setTags(mockPost.tags)
-      setFeatured(mockPost.featured)
-      setStatus(mockPost.status)
-      setFeaturedImage(mockPost.featuredImage)
-      setLoading(false)
-    } else {
-      notFound()
+    if (id) {
+      fetchCategories()
+      fetchPost()
     }
-  }, [params.id])
+  }, [id])
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories')
+      const data = await response.json()
+      if (response.ok) {
+        console.log('Fetched categories:', data.categories)
+        setCategories(data.categories || [])
+      } else {
+        console.error('Failed to fetch categories:', data.error)
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
+
+  const fetchPost = async () => {
+    try {
+      const response = await fetch(`/api/posts/${id}`)
+      const data = await response.json()
+      if (response.ok && data.post) {
+        const post: Post = data.post
+        console.log('Fetched post:', post)
+        setTitle(post.title)
+        setExcerpt(post.excerpt)
+        setContent(post.content)
+        setCategory(post.category?._id || "none")
+        setTags(post.tags || [])
+        setFeatured(post.featured)
+        setStatus(post.status)
+        setFeaturedImage(post.featuredImage || "")
+        setPublishedAt(post.publishedAt)
+      } else {
+        console.error('Failed to fetch post:', data.error)
+        notFound()
+      }
+    } catch (error) {
+      console.error('Error fetching post:', error)
+      notFound()
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleAddTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
@@ -89,26 +122,62 @@ export default function EditPostPage({ params }: EditPostPageProps) {
     setTags(tags.filter((tag) => tag !== tagToRemove))
   }
 
-  const handleSave = (saveStatus: "draft" | "published") => {
-    // This would normally update in MongoDB
-    console.log("Updating post:", {
-      id: params.id,
-      title,
-      excerpt,
-      content,
-      category,
-      tags,
-      featured,
-      status: saveStatus,
-      featuredImage,
-    })
+  const handleSave = async (saveStatus: "draft" | "published") => {
+    try {
+      const body = {
+        title: title.trim(),
+        excerpt: excerpt?.trim() || "",
+        content: content.trim(),
+        category: category === "none" ? null : category,
+        tags: tags || [],
+        featured: featured || false,
+        status: saveStatus,
+        featuredImage: featuredImage?.trim() || "",
+      }
+      console.log('Sending update request with body:', body)
+
+      const response = await fetch(`/api/posts/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+
+      const data = await response.json()
+      if (response.ok) {
+        setStatus(data.post.status)
+        if (data.post.publishedAt) {
+          setPublishedAt(data.post.publishedAt)
+        }
+        alert('Post updated successfully!')
+        router.push('/admin/posts')
+      } else {
+        console.error('Failed to update post:', data.error)
+        alert(`Failed to update post: ${data.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error updating post:', error)
+      alert('Failed to update post')
+    }
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (confirm("Are you sure you want to delete this post? This action cannot be undone.")) {
-      // This would normally delete from MongoDB
-      console.log("Deleting post:", params.id)
-      // Redirect to posts list
+      try {
+        const response = await fetch(`/api/posts/${id}`, {
+          method: 'DELETE',
+        })
+
+        if (response.ok) {
+          router.push('/admin/posts')
+        } else {
+          alert('Failed to delete post')
+        }
+      } catch (error) {
+        console.error('Error deleting post:', error)
+        alert('Failed to delete post')
+      }
     }
   }
 
@@ -223,25 +292,25 @@ export default function EditPostPage({ params }: EditPostPageProps) {
               <CardHeader>
                 <CardTitle className="font-serif text-xl font-bold text-gray-900">Featured Image</CardTitle>
               </CardHeader>
-              <CardContent>
-                {featuredImage ? (
-                  <div className="space-y-4">
-                    <img
-                      src={featuredImage || "/placeholder.svg"}
-                      alt="Featured"
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
-                    <Button variant="outline" onClick={() => setFeaturedImage("")}>
-                      Remove Image
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors">
-                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 mb-2">Upload featured image</p>
-                    <p className="text-sm text-gray-500 mb-4">PNG, JPG, GIF up to 10MB</p>
-                    <Button variant="outline">Choose File</Button>
-                  </div>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="featuredImage" className="text-sm font-medium text-gray-700">
+                    Image URL
+                  </Label>
+                  <Input
+                    id="featuredImage"
+                    value={featuredImage}
+                    onChange={(e) => setFeaturedImage(e.target.value)}
+                    placeholder="Enter image URL..."
+                    className="mt-1"
+                  />
+                </div>
+                {featuredImage && (
+                  <img
+                    src={featuredImage}
+                    alt="Featured"
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
                 )}
               </CardContent>
             </Card>
@@ -265,8 +334,8 @@ export default function EditPostPage({ params }: EditPostPageProps) {
                 >
                   {status === "published" ? "Published" : "Draft"}
                 </Badge>
-                {status === "published" && (
-                  <p className="text-xs text-gray-500 mt-2">Published on {mockPost.publishedAt}</p>
+                {status === "published" && publishedAt && (
+                  <p className="text-xs text-gray-500 mt-2">Published on {new Date(publishedAt).toLocaleDateString()}</p>
                 )}
               </CardContent>
             </Card>
@@ -292,17 +361,20 @@ export default function EditPostPage({ params }: EditPostPageProps) {
                 <CardTitle className="font-serif text-lg font-bold text-gray-900">Category</CardTitle>
               </CardHeader>
               <CardContent>
-                <Select value={category} onValueChange={setCategory}>
+                <Select value={category} onValueChange={(value) => {
+                  console.log('Selected category:', value)
+                  setCategory(value)
+                }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Technology">Technology</SelectItem>
-                    <SelectItem value="Development">Development</SelectItem>
-                    <SelectItem value="Design">Design</SelectItem>
-                    <SelectItem value="Writing">Writing</SelectItem>
-                    <SelectItem value="Cloud">Cloud</SelectItem>
-                    <SelectItem value="Business">Business</SelectItem>
+                    <SelectItem value="none">Uncategorized</SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat._id} value={cat._id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </CardContent>

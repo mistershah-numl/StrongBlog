@@ -1,6 +1,9 @@
+
+// filepath: app/admin/page.tsx
 "use client"
-import React from "react";
+
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -24,9 +27,11 @@ interface RecentPost {
   publishedAt: string | null
   author: string
   createdAt: string
+  slug: string
 }
 
 export default function AdminDashboard() {
+  const searchParams = useSearchParams()
   const [stats, setStats] = useState<DashboardStats>({
     totalPosts: 0,
     publishedPosts: 0,
@@ -39,7 +44,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchDashboardData()
-  }, [])
+  }, [searchParams])
 
   const fetchDashboardData = async () => {
     try {
@@ -89,6 +94,7 @@ export default function AdminDashboard() {
       day: 'numeric'
     })
   }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       <AdminSidebar />
@@ -188,9 +194,9 @@ export default function AdminDashboard() {
                       <Badge
                         variant={post.status === "published" ? "default" : "secondary"}
                         className={`w-fit text-xs ${post.status === "published"
-                            ? "bg-green-100 text-green-700 hover:bg-green-200"
-                            : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                          }`}
+                          ? "bg-green-100 text-green-700 hover:bg-green-200"
+                          : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                        }`}
                       >
                         {post.status}
                       </Badge>
@@ -215,9 +221,11 @@ export default function AdminDashboard() {
                         <Edit3 className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                    <Link href={`/blog/${post.slug}`}>
+                      <Button variant="ghost" size="sm">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               ))}

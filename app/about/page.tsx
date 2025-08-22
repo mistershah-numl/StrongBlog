@@ -40,19 +40,19 @@ export default function AboutPage() {
               Our Team
             </h1>
             <p className="text-lg sm:text-xl lg:text-2xl text-gray-200 max-w-2xl leading-relaxed">
-              Meet our Strong Analytics team of experts who are passionate about data science and machine learning.
+              Meet our DaVinci Analytics team of experts who are passionate about data science and machine learning.
             </p>
           </div>
         </div>
       </section>
 
-      {/* We Are All Strong Section */}
+      {/* We Are All DaVinci Section */}
       <section className="py-16 sm:py-20 lg:py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-sm font-semibold text-gray-500 mb-8 sm:mb-12 tracking-wider">WE ARE ALL STRONG</h2>
+          <h2 className="text-sm font-semibold text-gray-500 mb-8 sm:mb-12 tracking-wider">WE ARE ALL DaVinci</h2>
           <div className="prose prose-lg max-w-none">
             <p className="text-gray-700 mb-6 sm:mb-8 text-base sm:text-lg leading-relaxed">
-              Strong Analytics is a leading provider of custom machine learning software and data science solutions.
+              DaVinci Analytics is a leading provider of custom machine learning software and data science solutions.
             </p>
             <p className="text-gray-700 mb-6 sm:mb-8 text-base sm:text-lg leading-relaxed">
               Our team of machine learning scientists and engineers brings a wealth of knowledge and experience to every
@@ -203,9 +203,9 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
             <div className="sm:col-span-2">
-              <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Work with Strong.</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Work with DaVinci.</h3>
               <p className="text-blue-100 mb-6 sm:mb-8 max-w-md text-base sm:text-lg leading-relaxed">
-                Find out how Strong can help you tackle your most challenging data science and machine learning
+                Find out how DaVinci can help you tackle your most challenging data science and machine learning
                 projects.
               </p>
               <Link
@@ -259,10 +259,10 @@ export default function AboutPage() {
           <div className="border-t border-blue-400 mt-12 sm:mt-16 pt-8 sm:pt-10">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="flex items-center">
-                <span className="text-2xl sm:text-3xl font-bold">Strong</span>
+                <span className="text-2xl sm:text-3xl font-bold">DaVinci</span>
               </div>
               <p className="text-blue-100 text-xs sm:text-sm text-center sm:text-right">
-                © 2024 STRONG ANALYTICS. A ONESIX COMPANY. CHICAGO, IL, USA
+                © 2024 DAVINCI ANALYTICS. A PERSONAL BLOG. CHICAGO, IL, USA
               </p>
             </div>
           </div>

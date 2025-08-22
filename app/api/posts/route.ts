@@ -1,6 +1,10 @@
+
+// filepath: app/api/posts/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import connectDB from '@/lib/db'
 import Post from '@/lib/models/Post'
+import Category from '@/lib/models/Category'
+import mongoose from 'mongoose'
 
 // Generate slug from title
 function generateSlug(title: string): string {
@@ -19,7 +23,7 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url)
         const status = searchParams.get('status')
-    const category = searchParams.get('category')
+        const category = searchParams.get('category')
         const featured = searchParams.get('featured')
         const limit = parseInt(searchParams.get('limit') || '10')
         const page = parseInt(searchParams.get('page') || '1')
@@ -28,24 +32,44 @@ export async function GET(request: NextRequest) {
         const query: any = {}
         if (status) query.status = status
         if (category) {
-            // Allow filtering by category name
-            query['category.name'] = category
+            // Allow filtering by category ID or name
+            const categoryDoc = await Category.findOne({ $or: [{ _id: category }, { name: category }] })
+            if (categoryDoc) {
+                query.category = categoryDoc._id
+            } else {
+                query.category = null
+            }
         }
         if (featured) query.featured = featured === 'true'
 
         const skip = (page - 1) * limit
 
         const posts = await Post.find(query)
-            .populate('category', 'name color slug')
+            .populate({
+                path: 'category',
+                select: '_id name color slug',
+                options: { lean: true }
+            })
             .sort({ publishedAt: -1, createdAt: -1 })
             .skip(skip)
             .limit(limit)
             .lean()
 
+        // Ensure category is null if not populated
+        const sanitizedPosts = posts.map(post => ({
+            ...post,
+            category: post.category ? {
+                _id: post.category._id,
+                name: post.category.name,
+                color: post.category.color || '#6b7280',
+                slug: post.category.slug
+            } : null
+        }))
+
         const total = await Post.countDocuments(query)
 
         return NextResponse.json({
-            posts,
+            posts: sanitizedPosts,
             pagination: {
                 current: page,
                 total: Math.ceil(total / limit),
@@ -67,6 +91,7 @@ export async function POST(request: NextRequest) {
         await connectDB()
 
         const body = await request.json()
+        console.log('Received POST request body:', body)
         const {
             title,
             excerpt,
@@ -80,31 +105,34 @@ export async function POST(request: NextRequest) {
         } = body
 
         // Validation
-        if (!title || !content || !category || !author) {
+        if (!title || !content || !author) {
             return NextResponse.json(
-                { error: 'Missing required fields' },
+                { error: 'Missing required fields: title, content, and author are required' },
                 { status: 400 }
             )
         }
-        // If category is a string (name), fetch category object
-        let categoryObj = category
-        if (typeof category === 'string') {
-            const catDoc = await import('@/lib/models/Category').then(m => m.default.findOne({ name: category }))
+
+        // Handle category
+        let categoryId = null
+        if (category && typeof category === 'string' && category !== 'none') {
+            if (!mongoose.Types.ObjectId.isValid(category)) {
+                return NextResponse.json(
+                    { error: `Invalid category ID: ${category}` },
+                    { status: 400 }
+                )
+            }
+            const catDoc = await Category.findById(category)
             if (!catDoc) {
-                return NextResponse.json({ error: 'Category not found' }, { status: 400 })
+                return NextResponse.json(
+                    { error: `Category not found for ID: ${category}` },
+                    { status: 400 }
+                )
             }
-            categoryObj = {
-                _id: catDoc._id,
-                name: catDoc.name,
-                color: catDoc.color,
-                slug: catDoc.slug
-            }
+            categoryId = catDoc._id
         }
 
         // Generate slug
         let slug = generateSlug(title)
-
-        // Ensure slug is unique
         let slugExists = await Post.findOne({ slug })
         let counter = 1
         while (slugExists) {
@@ -118,21 +146,34 @@ export async function POST(request: NextRequest) {
             title: title.trim(),
             excerpt: excerpt?.trim() || title.substring(0, 150) + '...',
             content: content.trim(),
-            category: categoryObj,
+            category: categoryId,
             tags: tags || [],
-            featured: featured || false,
+            featured: !!featured,
             status: status || 'draft',
-            featuredImage: featuredImage || '',
-            author,
+            featuredImage: featuredImage?.trim() || '',
+            author: author.trim(),
             slug,
             publishedAt: status === 'published' ? new Date() : null,
         }
 
         const post = await Post.create(postData)
 
+        // Populate category for response
+        const populatedPost = await Post.findById(post._id)
+            .populate('category', '_id name color slug')
+            .lean()
+
         return NextResponse.json({
             message: `Post ${status === 'published' ? 'published' : 'saved as draft'} successfully!`,
-            post,
+            post: {
+                ...populatedPost,
+                category: populatedPost.category ? {
+                    _id: populatedPost.category._id,
+                    name: populatedPost.category.name,
+                    color: populatedPost.category.color || '#6b7280',
+                    slug: populatedPost.category.slug
+                } : null
+            },
         }, { status: 201 })
 
     } catch (error) {

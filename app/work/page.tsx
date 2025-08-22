@@ -22,28 +22,28 @@ const filterCategories = [
 const testimonials = [
     {
         id: 1,
-        quote: "It was an absolute pleasure working with Strong Analytics; their technical expertise is as deep as it is broad… in the case of complex, unstructured problems, they blazed a trail for us where there was none.",
+        quote: "It was an absolute pleasure working with DaVinci Analytics; their technical expertise is as deep as it is broad… in the case of complex, unstructured problems, they blazed a trail for us where there was none.",
         author: "CHARLOTTE DANIELS",
         position: "HEAD OF DATA SCIENCE, DICTIONARY.COM",
         image: "/placeholder-user.jpg"
     },
     {
         id: 2,
-        quote: "Partnering with Strong Analytics has taken ReUp further faster against our product vision than we could have anticipated. They are like rocket fuel for innovation, and our collaboration continues to deliver high-value data science initiatives thanks to their expertise and commitment to results.",
+        quote: "Partnering with DaVinci Analytics has taken ReUp further faster against our product vision than we could have anticipated. They are like rocket fuel for innovation, and our collaboration continues to deliver high-value data science initiatives thanks to their expertise and commitment to results.",
         author: "ZACK AVSHALOMOV",
         position: "HEAD OF PRODUCT, REUP EDUCATION",
         image: "/placeholder-user.jpg"
     },
     {
         id: 3,
-        quote: "Strong Analytics delivered exceptional results that exceeded our expectations. Their deep understanding of machine learning and data science helped us transform our business processes completely.",
+        quote: "DaVinci Analytics delivered exceptional results that exceeded our expectations. Their deep understanding of machine learning and data science helped us transform our business processes completely.",
         author: "SARAH JOHNSON",
         position: "CTO, TECH INNOVATIONS",
         image: "/placeholder-user.jpg"
     },
     {
         id: 4,
-        quote: "Working with Strong Analytics was a game changer for our organization. Their expertise in AI and machine learning solutions helped us achieve breakthrough results in record time.",
+        quote: "Working with DaVinci Analytics was a game changer for our organization. Their expertise in AI and machine learning solutions helped us achieve breakthrough results in record time.",
         author: "MICHAEL CHEN",
         position: "VP OF ENGINEERING, DATA CORP",
         image: "/placeholder-user.jpg"
@@ -88,7 +88,7 @@ const caseStudies = [
         title: "Reinforcement learning for personalized medication dosing",
         categories: ["HEALTHCARE"],
         image: "/placeholder.svg",
-        description: "We used Strong RL and two new simulation environments to train and validate RL approaches to dosing problems.",
+        description: "We used DaVinci RL and two new simulation environments to train and validate RL approaches to dosing problems.",
         link: "/blog/reinforcement-learning-for-personalized-medication-dosing"
     },
     {
@@ -349,14 +349,14 @@ export default function WorkPage() {
                 </div>
             </section>
 
-            {/* Work with Strong Section */}
+            {/* Work with DaVinci Section */}
             <section className="bg-gray-50 py-20">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-4xl sm:text-5xl font-light text-gray-900 mb-6">
-                        Work with<br />Strong.
+                        Work with<br />DaVinci.
                     </h2>
                     <p className="text-lg text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-                        Find out how Strong can help you tackle your most challenging data science and machine learning projects.
+                        Find out how DaVinci can help you tackle your most challenging data science and machine learning projects.
                     </p>
                     <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-sm font-medium tracking-wider uppercase">
                         GET IN TOUCH
@@ -369,7 +369,7 @@ export default function WorkPage() {
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
                         <div>
-                            <div className="text-2xl font-light mb-8">Strong</div>
+                            <div className="text-2xl font-light mb-8">DaVinci</div>
                         </div>
                         <div>
                             <h4 className="font-medium mb-6 text-sm tracking-wider">SOLUTIONS</h4>
@@ -389,7 +389,7 @@ export default function WorkPage() {
                         </div>
                         <div>
                             <div className="text-sm text-white/80 leading-relaxed">
-                                © 2025 STRONG ANALYTICS, A ONESIX COMPANY
+                                © 2025 DaVinci ANALYTICS, A ONESIX COMPANY
                                 <br />
                                 CHICAGO, IL, USA
                             </div>

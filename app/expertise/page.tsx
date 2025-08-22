@@ -188,7 +188,7 @@ export default function SolutionsPage() {
                     <div className="mb-12">
                         <svg width="120" height="40" viewBox="0 0 120 40" className="mx-auto mb-8">
                             <text x="0" y="30" className="text-2xl font-serif fill-gray-900">
-                                Strong
+                                DaVinci
                             </text>
                         </svg>
                     </div>
@@ -205,7 +205,7 @@ export default function SolutionsPage() {
                     <div className="grid md:grid-cols-2 gap-12">
                         <div className="bg-white p-8 rounded-lg">
                             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                                "It was an absolute pleasure working with Strong Analytics; their technical expertise is as deep as it
+                                "It was an absolute pleasure working with DaVinci Analytics; their technical expertise is as deep as it
                                 is broad... In the case of complex, unstructured problems, they blazed a trail for us when there was no
                                 clear path forward."
                             </p>
@@ -221,7 +221,7 @@ export default function SolutionsPage() {
 
                         <div className="bg-white p-8 rounded-lg">
                             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                                "Partnering with Strong Analytics has taken Reup further faster against our product vision than we could
+                                "Partnering with DaVinci Analytics has taken Reup further faster against our product vision than we could
                                 have anticipated. They are the rocket fuel for innovation, and our collaboration continues to unlock new
                                 data science initiatives thanks to their expertise and commitment to results."
                             </p>
@@ -238,7 +238,7 @@ export default function SolutionsPage() {
                 </div>
             </section>
 
-            {/* Work with Strong */}
+            {/* Work with DaVinci */}
             <section className="py-20 px-6 bg-gray-100">
                 <div className="max-w-6xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -246,12 +246,12 @@ export default function SolutionsPage() {
                             <h2 className="text-5xl lg:text-6xl font-serif mb-6 text-gray-900">
                                 Work with
                                 <br />
-                                Strong.
+                                DaVinci.
                             </h2>
                         </div>
                         <div>
                             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                                Find out how Strong can help you tackle your most challenging data science and machine learning
+                                Find out how DaVinci can help you tackle your most challenging data science and machine learning
                                 projects.
                             </p>
                             <button className="bg-[#4C6FE7] text-white px-8 py-3 font-medium hover:bg-[#3A5BD4] transition-colors duration-200">
@@ -267,7 +267,7 @@ export default function SolutionsPage() {
                 <div className="max-w-6xl mx-auto">
                     <div className="grid md:grid-cols-4 gap-8">
                         <div>
-                            <h3 className="text-xl font-serif mb-4">Strong</h3>
+                            <h3 className="text-xl font-serif mb-4">DaVinci</h3>
                         </div>
                         <div>
                             <h4 className="font-medium mb-4">SOLUTIONS</h4>
@@ -286,7 +286,7 @@ export default function SolutionsPage() {
                             </ul>
                         </div>
                         <div>
-                            <p className="text-sm">© 2024 STRONG ANALYTICS. A ONESIX COMPANY</p>
+                            <p className="text-sm">© 2024 DaVinci ANALYTICS. A PERSONAL BLOG</p>
                             <p className="text-sm">CHICAGO, IL, USA</p>
                         </div>
                     </div>

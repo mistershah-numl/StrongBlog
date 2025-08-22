@@ -13,7 +13,7 @@ export default function PlatformsPage() {
                 <div className="relative z-10 flex items-center justify-between min-h-screen px-4 sm:px-6 lg:px-8">
                     <div className="max-w-2xl">
                         <h1 className="text-white text-5xl sm:text-6xl lg:text-7xl font-canela font-light leading-tight mb-8">
-                            Strong
+                            DaVinci
                             <br />
                             Platforms
                         </h1>
@@ -41,7 +41,7 @@ export default function PlatformsPage() {
             <section className="py-8 px-4 sm:px-6 lg:px-8 bg-white border-b border-gray-200">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex justify-center space-x-8 sm:space-x-12">
-                        {["STRONG BI", "STRONG ML", "STRONG VISION", "STRONG FORECAST"].map((platform) => (
+                        {["DaVinci BI", "DaVinci ML", "DaVinci VISION", "DaVinci FORECAST"].map((platform) => (
                             <a
                                 key={platform}
                                 href={`#${platform.toLowerCase().replace(" ", "-")}`}
@@ -54,8 +54,8 @@ export default function PlatformsPage() {
                 </div>
             </section>
 
-            {/* Strong BI Section */}
-            <section id="strong-bi" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+            {/* DaVinci BI Section */}
+            <section id="DaVinci-bi" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
                 <div className="max-w-6xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <div>
@@ -104,7 +104,7 @@ export default function PlatformsPage() {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-4xl sm:text-5xl font-canela font-light text-gray-900 mb-6">Strong BI.</h2>
+                            <h2 className="text-4xl sm:text-5xl font-canela font-light text-gray-900 mb-6">DaVinci BI.</h2>
                             <p className="text-gray-600 text-lg leading-relaxed mb-8 font-karla">
                                 Build more intelligent business intelligence
                                 <br />
@@ -125,12 +125,12 @@ export default function PlatformsPage() {
                 </div>
             </section>
 
-            {/* Strong ML Section */}
-            <section id="strong-ml" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+            {/* DaVinci ML Section */}
+            <section id="DaVinci-ml" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
                 <div className="max-w-6xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <div>
-                            <h2 className="text-4xl sm:text-5xl font-canela font-light text-gray-900 mb-6">Strong ML.</h2>
+                            <h2 className="text-4xl sm:text-5xl font-canela font-light text-gray-900 mb-6">DaVinci ML.</h2>
                             <p className="text-gray-600 text-lg leading-relaxed mb-8 font-karla">
                                 Rapidly build and deploy machine learning
                                 <br />
@@ -167,12 +167,12 @@ export default function PlatformsPage() {
                 </div>
             </section>
 
-            {/* Strong Vision Section */}
-            <section id="strong-vision" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+            {/* DaVinci Vision Section */}
+            <section id="DaVinci-vision" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
                 <div className="max-w-6xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <div>
-                            <h2 className="text-4xl sm:text-5xl font-canela font-light text-gray-900 mb-6">Strong Vision</h2>
+                            <h2 className="text-4xl sm:text-5xl font-canela font-light text-gray-900 mb-6">DaVinci Vision</h2>
                             <p className="text-gray-600 text-lg leading-relaxed mb-8 font-karla">
                                 Custom, enterprise-ready computer vision
                                 <br />
@@ -210,12 +210,12 @@ export default function PlatformsPage() {
                 </div>
             </section>
 
-            {/* Strong Forecast Section */}
-            <section id="strong-forecast" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+            {/* DaVinci Forecast Section */}
+            <section id="DaVinci-forecast" className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
                 <div className="max-w-6xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         <div>
-                            <h2 className="text-4xl sm:text-5xl font-canela font-light text-gray-900 mb-6">Strong Forecast</h2>
+                            <h2 className="text-4xl sm:text-5xl font-canela font-light text-gray-900 mb-6">DaVinci Forecast</h2>
                             <p className="text-gray-600 text-lg leading-relaxed mb-8 font-karla">
                                 Predict the future using state of the art forecasts.
                                 <br />
@@ -266,14 +266,14 @@ export default function PlatformsPage() {
                         {[
                             {
                                 quote:
-                                    "It was an absolute pleasure working with Strong Analytics; their technical expertise is as deep as it is broad... in the case of complex, unstructured problems, they blazed a trail for us when the path forward was unclear.",
+                                    "It was an absolute pleasure working with DaVinci Analytics; their technical expertise is as deep as it is broad... in the case of complex, unstructured problems, they blazed a trail for us when the path forward was unclear.",
                                 author: "CHARLOTTE",
                                 title: "HEAD OF DATA",
                                 company: "FINTECH STARTUP",
                             },
                             {
                                 quote:
-                                    "Partnering with Strong Analytics has taken Reup further faster against our product vision than we could have anticipated. They are the rocket fuel for innovation, and our collaboration continues to yield exceptional results for data science initiatives thanks to their expertise and commitment to results.",
+                                    "Partnering with DaVinci Analytics has taken Reup further faster against our product vision than we could have anticipated. They are the rocket fuel for innovation, and our collaboration continues to yield exceptional results for data science initiatives thanks to their expertise and commitment to results.",
                                 author: "JACK ASPINWALL",
                                 title: "CO-FOUNDER",
                                 company: "REUP",
@@ -296,7 +296,7 @@ export default function PlatformsPage() {
                 </div>
             </section>
 
-            {/* Work with Strong Section */}
+            {/* Work with DaVinci Section */}
             <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
                 <div className="max-w-6xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -304,12 +304,12 @@ export default function PlatformsPage() {
                             <h2 className="text-4xl sm:text-5xl font-canela font-light text-gray-900 mb-6">
                                 Work with
                                 <br />
-                                Strong.
+                                DaVinci.
                             </h2>
                         </div>
                         <div>
                             <p className="text-gray-600 text-lg leading-relaxed mb-8 font-karla">
-                                Find out how Strong can help you tackle your most
+                                Find out how DaVinci can help you tackle your most
                                 <br />
                                 challenging data science and machine learning
                                 <br />
@@ -331,7 +331,7 @@ export default function PlatformsPage() {
                 <div className="max-w-6xl mx-auto">
                     <div className="grid md:grid-cols-4 gap-8">
                         <div>
-                            <div className="text-2xl font-canela font-light mb-4 text-white">Strong</div>
+                            <div className="text-2xl font-canela font-light mb-4 text-white">DaVinci</div>
                             <p className="text-white/70 text-sm font-karla">A OneSix Company</p>
                         </div>
                         <div>
@@ -352,7 +352,7 @@ export default function PlatformsPage() {
                         </div>
                         <div>
                             <p className="text-white/70 text-sm font-karla">
-                                © 2024 STRONG ANALYTICS. A ONESIX COMPANY.
+                                © 2024 DaVinci ANALYTICS. A ONESIX COMPANY.
                                 <br />
                                 CHICAGO, IL, USA
                             </p>

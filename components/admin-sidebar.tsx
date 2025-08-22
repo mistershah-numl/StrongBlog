@@ -13,9 +13,7 @@ const navigation = [
   { name: "All Posts", href: "/admin/posts", icon: FileText },
   { name: "New Post", href: "/admin/posts/new", icon: Plus },
   { name: "Categories", href: "/admin/categories", icon: Tags },
-  { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { name: "Users", href: "/admin/users", icon: Users },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
+  ,
 ]
 
 export function AdminSidebar() {
@@ -34,7 +32,7 @@ export function AdminSidebar() {
       {/* Logo */}
       <div className="p-4 lg:p-6 border-b border-gray-200">
         <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
-          <div className="font-serif text-lg lg:text-xl font-bold text-gray-900">Strong Blog</div>
+          <div className="font-serif text-lg lg:text-xl font-bold text-gray-900">DaVinci Blog</div>
           <Badge variant="secondary" className="text-xs">
             Admin
           </Badge>
@@ -102,7 +100,7 @@ export function AdminSidebar() {
       <div className="lg:hidden">
         <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between sticky top-0 z-40">
           <Link href="/" className="flex items-center gap-2">
-            <div className="font-serif text-lg font-bold text-gray-900">Strong Blog</div>
+            <div className="font-serif text-lg font-bold text-gray-900">DaVinci Blog</div>
             <Badge variant="secondary" className="text-xs">
               Admin
             </Badge>

@@ -1,3 +1,4 @@
+
 // filepath: lib/models/Post.ts
 import mongoose, { Document, Schema } from 'mongoose'
 
@@ -5,7 +6,7 @@ export interface IPost extends Document {
     title: string
     excerpt: string
     content: string
-    category: any
+    category: mongoose.Types.ObjectId | null
     tags: string[]
     featured: boolean
     status: 'draft' | 'published'
@@ -37,8 +38,10 @@ const PostSchema = new Schema<IPost>(
             required: true,
         },
         category: {
-            type: Schema.Types.Mixed,
-            required: true,
+            type: Schema.Types.ObjectId,
+            ref: 'Category',
+            required: false,
+            default: null,
         },
         tags: [{
             type: String,
@@ -78,6 +81,7 @@ const PostSchema = new Schema<IPost>(
             type: String,
             required: true,
             trim: true,
+            unique: true,
         },
     },
     {
@@ -85,10 +89,8 @@ const PostSchema = new Schema<IPost>(
     }
 )
 
-// Index for better query performance
+// Indexes for better query performance
 PostSchema.index({ status: 1, publishedAt: -1 })
-// Only keep one slug index definition
-// PostSchema.index({ slug: 1 })
 PostSchema.index({ tags: 1 })
 
 export default mongoose.models.Post || mongoose.model<IPost>('Post', PostSchema)

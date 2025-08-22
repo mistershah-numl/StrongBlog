@@ -1,3 +1,5 @@
+
+// filepath: app/blog/[slug]/page.tsx
 "use client"
 
 import { useState, useEffect } from "react"
@@ -19,7 +21,8 @@ interface Post {
     _id: string
     name: string
     color: string
-  }
+    slug: string
+  } | null
   tags: string[]
   featured: boolean
   status: "draft" | "published"
@@ -30,37 +33,33 @@ interface Post {
   comments: number
 }
 
-interface BlogPostPageProps {
-  // params removed, will use useParams()
-}
-
 export default function BlogPostPage() {
-  const params = useParams();
-  const slug = typeof params.slug === "string" ? params.slug : (Array.isArray(params.slug) ? params.slug[0] : "");
-  const [post, setPost] = useState<Post | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFoundError, setNotFoundError] = useState(false);
+  const params = useParams()
+  const slug = typeof params.slug === "string" ? params.slug : (Array.isArray(params.slug) ? params.slug[0] : "")
+  const [post, setPost] = useState<Post | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [notFoundError, setNotFoundError] = useState(false)
 
   useEffect(() => {
-    fetchPost();
+    fetchPost()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug]);
+  }, [slug])
 
   const fetchPost = async () => {
     try {
-      const response = await fetch(`/api/posts/slug/${slug}`);
-      const data = await response.json();
+      const response = await fetch(`/api/posts/slug/${slug}`)
+      const data = await response.json()
       if (response.ok && data.post) {
-        setPost(data.post);
-        incrementViews(data.post._id);
+        setPost(data.post)
+        incrementViews(data.post._id)
       } else {
-        setNotFoundError(true);
+        setNotFoundError(true)
       }
     } catch (error) {
-      console.error('Error fetching post:', error);
-      setNotFoundError(true);
+      console.error('Error fetching post:', error)
+      setNotFoundError(true)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
@@ -130,7 +129,7 @@ export default function BlogPostPage() {
             Back to Blog
           </Link>
           <div className="text-xs text-white/80 mb-4 tracking-wide">
-            {post.category.name.toUpperCase()} — {formatDate(post.publishedAt)}
+            {post.category?.name?.toUpperCase() || 'Uncategorized'} — {formatDate(post.publishedAt)}
           </div>
           <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-light leading-tight">
             {post.title}

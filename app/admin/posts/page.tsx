@@ -1,3 +1,5 @@
+
+// filepath: app/admin/posts/page.tsx
 "use client"
 
 import { useState, useEffect } from "react"
@@ -16,7 +18,12 @@ interface Post {
   _id: string
   title: string
   status: 'draft' | 'published'
-  category: string
+  category: {
+    _id: string
+    name: string
+    color: string
+    slug: string
+  }
   author: string
   publishedAt: string | null
   views: number
@@ -80,6 +87,7 @@ export default function AdminPostsPage() {
 
       if (response.ok) {
         setPosts(posts.filter(post => post._id !== postId))
+        alert('Post deleted successfully!')
       } else {
         alert('Failed to delete post')
       }
@@ -93,7 +101,7 @@ export default function AdminPostsPage() {
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          post.author.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === "all" || post.status === statusFilter
-    const matchesCategory = categoryFilter === "all" || (post.category?.name === categoryFilter || post.category === categoryFilter)
+    const matchesCategory = categoryFilter === "all" || (post.category?.name === categoryFilter || post.category?._id === categoryFilter)
     
     return matchesSearch && matchesStatus && matchesCategory
   })
@@ -164,7 +172,7 @@ export default function AdminPostsPage() {
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
                   {categories.map((category) => (
-                    <SelectItem key={category._id} value={category.name}>
+                    <SelectItem key={category._id} value={category._id}>
                       {category.name}
                     </SelectItem>
                   ))}
@@ -227,7 +235,7 @@ export default function AdminPostsPage() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">
-                          {typeof post.category === 'object' && post.category !== null ? post.category.name : post.category}
+                          {post.category?.name || 'Uncategorized'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-gray-600">{post.author}</TableCell>

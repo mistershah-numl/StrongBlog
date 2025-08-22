@@ -288,8 +288,8 @@ export default function HomePage() {
           <div className="border-t border-gray-800 pt-8">
             <div className="grid md:grid-cols-4 gap-8">
               <div>
-                <div className="text-2xl font-canela font-light mb-4">Strong</div>
-                <p className="text-gray-400 text-sm font-karla">A OneSix Company</p>
+                <div className="text-2xl font-canela font-light mb-4">DaVinci</div>
+                <p className="text-gray-400 text-sm font-karla">Personal Blog</p>
               </div>
               <div>
                 <h4 className="font-atc-harris font-medium mb-4">Services</h4>

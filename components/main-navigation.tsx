@@ -30,7 +30,7 @@ export function MainNavigation({ variant = "light" }: MainNavigationProps) {
   return (
     <nav className="flex items-center justify-between">
       <Link href="/" className={`font-serif text-2xl font-bold ${logoColor}`}>
-        Strong Blog
+        DaVinci
       </Link>
 
       {/* Desktop Navigation */}
@@ -62,7 +62,7 @@ export function MainNavigation({ variant = "light" }: MainNavigationProps) {
         <SheetContent side="right" className="w-80">
           <div className="flex items-center justify-between mb-8">
             <Link href="/" className="font-serif text-xl font-bold text-gray-900" onClick={() => setIsOpen(false)}>
-              Strong Blog
+              DaVinci
             </Link>
           </div>
           <nav className="space-y-4">

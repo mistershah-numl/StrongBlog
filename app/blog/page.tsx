@@ -1,3 +1,5 @@
+
+// filepath: app/blog/page.tsx
 "use client"
 
 import { useState, useEffect } from "react"
@@ -17,7 +19,8 @@ interface Post {
     _id: string
     name: string
     color: string
-  }
+    slug: string
+  } | null
   tags: string[]
   featured: boolean
   status: "draft" | "published"
@@ -40,13 +43,12 @@ export default function BlogPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchTerm, setSearchTerm] = useState("")
-  const [featuredPost, setFeaturedPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
-    fetchPosts(page)
+    fetchPosts()
     fetchCategories()
   }, [page])
 
@@ -55,12 +57,8 @@ export default function BlogPage() {
       const response = await fetch(`/api/posts?status=published&page=${page}&limit=6`)
       const data = await response.json()
       if (response.ok) {
-        const allPosts = data.posts || []
-        setPosts(allPosts)
-        setTotalPages(data.pagination?.total || 1);
-        // Set featured post (first featured post or first post)
-        const featured = allPosts.find((post: Post) => post.featured) || allPosts[0]
-        setFeaturedPost(featured)
+        setPosts(data.posts || [])
+        setTotalPages(data.pagination?.total || 1)
       }
     } catch (error) {
       console.error('Error fetching posts:', error)
@@ -82,12 +80,12 @@ export default function BlogPage() {
   }
 
   const filteredPosts = posts.filter((post) => {
-  const matchesCategory = selectedCategory === "all" || post.category?._id === selectedCategory
-    const matchesSearch = 
+    const matchesCategory = selectedCategory === "all" || post.category?._id === selectedCategory
+    const matchesSearch =
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    return matchesCategory && matchesSearch && post._id !== featuredPost?._id
+    return matchesCategory && matchesSearch
   })
 
   const formatDate = (dateString: string) => {
@@ -97,6 +95,7 @@ export default function BlogPage() {
       year: 'numeric'
     })
   }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -123,32 +122,16 @@ export default function BlogPage() {
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {featuredPost ? (
-            <>
-              <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-light leading-tight mb-6">
-                {featuredPost.title}
-              </h1>
-              <p className="text-white/80 text-lg mb-8 max-w-2xl leading-relaxed">
-                {featuredPost.excerpt}
-              </p>
-              <Link href={`/blog/${featuredPost.slug}`}>
-                <Button className="bg-white text-gray-900 hover:bg-gray-50 px-8 py-3 text-sm font-medium tracking-wider uppercase rounded-none">
-                  READ MORE
-                </Button>
-              </Link>
-            </>
-          ) : (
-            <>
-              <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-light leading-tight mb-6">
-                Strong Analytics
-                <br />
-                Blog
-              </h1>
-              <p className="text-white/80 text-lg mb-8 max-w-2xl leading-relaxed">
-                Insights and updates from our team of data science and machine learning experts.
-              </p>
-            </>
-          )}
+          <>
+            <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-light leading-tight mb-6">
+              DaVinci Analytics
+              <br />
+              Blog
+            </h1>
+            <p className="text-white/80 text-lg mb-8 max-w-2xl leading-relaxed">
+              Insights and updates from our team of data science and machine learning experts.
+            </p>
+          </>
         </div>
       </section>
 
@@ -157,7 +140,7 @@ export default function BlogPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-16 gap-6">
             <div className="relative">
-              <select 
+              <select
                 className="appearance-none bg-white border-0 border-b border-gray-300 px-0 py-3 pr-8 text-sm text-gray-600 focus:outline-none focus:border-gray-500 bg-transparent"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
@@ -245,9 +228,9 @@ export default function BlogPage() {
                         {post.category && (
                           <span
                             className="text-xs font-medium tracking-wide px-2 py-1 rounded-sm text-white"
-                            style={{ backgroundColor: post.category.color }}
+                            style={{ backgroundColor: post.category.color || '#6b7280' }}
                           >
-                            {post.category.name.toUpperCase()}
+                            {post.category.name?.toUpperCase() || 'Uncategorized'}
                           </span>
                         )}
                         {post.tags.slice(0, 2).map((tag) => (
@@ -291,10 +274,10 @@ export default function BlogPage() {
           <h2 className="text-4xl font-light text-gray-900 mb-6">
             Work with
             <br />
-            Strong.
+            DaVinci.
           </h2>
           <p className="text-gray-600 text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
-            Find out how Strong can help you tackle your most challenging data science and machine learning projects.
+            Find out how DaVinci can help you tackle your most challenging data science and machine learning projects.
           </p>
           <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-sm font-medium tracking-wider uppercase rounded-none">
             GET IN TOUCH
@@ -306,7 +289,7 @@ export default function BlogPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             <div>
-              <div className="text-2xl font-light mb-8">Strong</div>
+              <div className="text-2xl font-light mb-8">DaVinci</div>
             </div>
             <div>
               <h4 className="font-medium mb-6 text-sm tracking-wider">SOLUTIONS</h4>
@@ -326,7 +309,7 @@ export default function BlogPage() {
             </div>
             <div>
               <div className="text-sm text-white/80 leading-relaxed">
-                © 2023 STRONG ANALYTICS | A ONESIX COMPANY
+                © 2023 DaVinci ANALYTICS | A ONESIX COMPANY
                 <br />
                 CHICAGO, IL, USA
               </div>

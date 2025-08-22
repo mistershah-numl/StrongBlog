@@ -31,8 +31,8 @@ export function StrongNavigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center flex-shrink-0">
-            <span className="text-2xl font-bold text-black font-canela">Strong</span>
-            <span className="text-xs text-gray-500 ml-2 font-karla">A OneSix Company</span>
+            <span className="text-2xl font-bold text-black font-canela">DaVinci</span>
+            <span className="text-xs text-gray-500 ml-2 font-karla">Personal Blog</span>
           </Link>
 
           {/* Desktop Navigation */}
