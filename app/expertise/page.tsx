@@ -89,13 +89,6 @@ export default function SolutionsPage() {
             <section className="py-20 px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
-                        <div className="flex justify-center">
-                            <img
-                                src="/automotive-car-manufacturing-bw.png"
-                                alt="Automotive Industry"
-                                className="w-full max-w-md grayscale"
-                            />
-                        </div>
                         <div>
                             <h2 className="text-4xl lg:text-5xl font-serif mb-6 text-gray-900">Automotives</h2>
                             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
@@ -107,6 +100,13 @@ export default function SolutionsPage() {
                                 LEARN MORE
                             </button>
                         </div>
+                        <div className="flex justify-center">
+                            <img
+                                src="/automotive-car-manufacturing-bw.png"
+                                alt="Automotive Industry"
+                                className="w-full max-w-md grayscale"
+                            />
+                        </div>
                     </div>
                 </div>
             </section>
@@ -115,7 +115,7 @@ export default function SolutionsPage() {
             <section className="py-20 px-6 bg-gray-50">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
-                        <div>
+                        <div className="lg:order-2">
                             <h2 className="text-4xl lg:text-5xl font-serif mb-6 text-gray-900">
                                 Marketing / Ad-
                                 <br />
@@ -130,7 +130,7 @@ export default function SolutionsPage() {
                                 LEARN MORE
                             </button>
                         </div>
-                        <div className="flex justify-center">
+                        <div className="lg:order-1 flex justify-center">
                             <img src="/marketing-analytics-bw.png" alt="Marketing & Ad-Ops" className="w-full max-w-md grayscale" />
                         </div>
                     </div>
@@ -141,9 +141,6 @@ export default function SolutionsPage() {
             <section className="py-20 px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
-                        <div className="flex justify-center">
-                            <img src="/gaming-dice-casino-bw.png" alt="Gaming Industry" className="w-full max-w-md grayscale" />
-                        </div>
                         <div>
                             <h2 className="text-4xl lg:text-5xl font-serif mb-6 text-gray-900">Gaming</h2>
                             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
@@ -156,6 +153,9 @@ export default function SolutionsPage() {
                                 LEARN MORE
                             </button>
                         </div>
+                        <div className="flex justify-center">
+                            <img src="/gaming-dice-casino-bw.png" alt="Gaming Industry" className="w-full max-w-md grayscale" />
+                        </div>
                     </div>
                 </div>
             </section>
@@ -164,7 +164,7 @@ export default function SolutionsPage() {
             <section className="py-20 px-6 bg-gray-50">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
-                        <div>
+                        <div className="lg:order-2">
                             <h2 className="text-4xl lg:text-5xl font-serif mb-6 text-gray-900">Manufacturing</h2>
                             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
                                 We help manufacturing companies optimize operations, improve quality control, and reduce costs through
@@ -175,7 +175,7 @@ export default function SolutionsPage() {
                                 LEARN MORE
                             </button>
                         </div>
-                        <div className="flex justify-center">
+                        <div className="lg:order-1 flex justify-center">
                             <img src="/factory-production-bw.png" alt="Manufacturing" className="w-full max-w-md grayscale" />
                         </div>
                     </div>
